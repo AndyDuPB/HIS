@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:whatever="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".registration.RegistrationActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="40dp"
+            android:layout_marginRight="20dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/aboutAuthor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:gravity="start"
+                android:textSize="18sp"
+                android:textColor="#000000"
+                android:typeface="serif"
+                android:text="@string/aboutAuthorText" />
+
+            <TextView
+                android:id="@+id/aboutQQAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:gravity="start"
+                android:textSize="18sp"
+                android:textColor="#000000"
+                android:typeface="serif"
+                android:text="@string/aboutQQAddress" />
+
+            <TextView
+                android:id="@+id/aboutWeChatAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:gravity="start"
+                android:textSize="18sp"
+                android:textColor="#000000"
+                android:typeface="serif"
+                android:text="@string/aboutWeChatAddress" />
+
+            <TextView />
+            <TextView />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:gravity="start"
+                android:textSize="18sp"
+                android:textColor="#000000"
+                android:typeface="serif"
+                android:text="@string/device_info_label" />
+
+            <EditText
+                android:id="@+id/deviceInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:gravity="start"
+                android:textSize="16sp"
+                android:textColor="#000000"
+                android:typeface="serif"
+                android:text=""  />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:gravity="start"
+                android:textSize="18sp"
+                android:textColor="#000000"
+                android:typeface="serif"
+                android:text="@string/registration_code_label" />
+
+            <com.andreabaccega.widget.FormEditText
+                android:id="@+id/registrationCode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                whatever:testType="nocheck"
+                whatever:emptyAllowed="false"
+                whatever:emptyErrorString="@string/registration_code_cannot_be_empty"
+                android:hint="@string/registration_code__hint"
+                android:minLines="5"
+                android:scrollbars="vertical"
+                android:singleLine="false"
+                android:inputType="textMultiLine"
+                android:gravity="left|top"
+                android:ems="10"
+                android:textSize="16sp"
+                android:textColor="#000000"
+                android:typeface="serif"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp">
+
+                <Button
+                    android:id="@+id/btnRegistration"
+                    android:layout_width="48dp"
+                    android:layout_height="24dp"
+                    android:layout_marginStart="120dp"
+                    android:layout_marginLeft="120dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginBottom="6dp"
+                    android:background="@drawable/button_circle_shape"
+                    android:text="@string/btn_registration_desc"/>
+                <Button
+                    android:id="@+id/btnReset"
+                    android:layout_width="48dp"
+                    android:layout_height="24dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginBottom="6dp"
+                    android:background="@drawable/button_circle_shape"
+                    android:text="@string/btn_reset_desc"/>
+            </LinearLayout>
+        </TableLayout>
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

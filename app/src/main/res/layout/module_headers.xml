@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="0dp"
+    android:layout_weight="1"
+    android:orientation="vertical"
+    android:collapseColumns="0">
+
+    <TableRow
+        android:layout_marginTop="0dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp">
+        <TextView
+            android:id="@+id/moduleID"
+            android:gravity="center"
+            android:background="@drawable/textview_border"
+            android:layout_width="56dp"
+            android:layout_height="20dp"
+            android:ems="10"
+            android:textSize="16sp"
+            android:textColor="#000000"
+            android:typeface="serif"
+            android:text="@string/moduleID" />
+
+        <TextView
+            android:id="@+id/moduleCounty"
+            android:gravity="center"
+            android:background="@drawable/textview_border"
+            android:layout_width="74dp"
+            android:layout_height="20dp"
+            android:ems="10"
+            android:textSize="16sp"
+            android:textColor="#000000"
+            android:typeface="serif"
+            android:text="@string/moduleCounty" />
+
+        <TextView
+            android:id="@+id/moduleTown"
+            android:gravity="center"
+            android:background="@drawable/textview_border"
+            android:layout_width="74dp"
+            android:layout_height="20dp"
+            android:ems="10"
+            android:textSize="16sp"
+            android:textColor="#000000"
+            android:typeface="serif"
+            android:text="@string/moduleTown" />
+
+        <TextView
+            android:id="@+id/moduleVillage"
+            android:gravity="center"
+            android:background="@drawable/textview_border"
+            android:layout_width="74dp"
+            android:layout_height="20dp"
+            android:ems="10"
+            android:textSize="16sp"
+            android:textColor="#000000"
+            android:typeface="serif"
+            android:text="@string/moduleVillage" />
+
+        <TextView
+            android:id="@+id/moduleGroup"
+            android:gravity="center"
+            android:background="@drawable/textview_border"
+            android:layout_width="74dp"
+            android:layout_height="20dp"
+            android:ems="10"
+            android:textSize="16sp"
+            android:textColor="#000000"
+            android:typeface="serif"
+            android:text="@string/moduleGroup" />
+
+        <TextView
+            android:gravity="center"
+            android:background="@drawable/textview_border"
+            android:layout_width="30dp"
+            android:layout_height="20dp"
+            android:ems="10"
+            android:textSize="16sp"
+            android:textColor="#000000"
+            android:typeface="serif"/>
+    </TableRow>
+</TableLayout>
