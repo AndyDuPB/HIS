@@ -6,10 +6,12 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -34,6 +36,7 @@ import com.andy.his.R;
 import com.andy.his.module.ModuleSpinnerDetail;
 import com.andy.his.sql.HISDatabaseFactory;
 import com.andy.his.sql.HISDatabaseHelper;
+import com.wildma.idcardcamera.camera.IDCardCamera;
 
 import java.io.File;
 import java.text.MessageFormat;
@@ -470,32 +473,49 @@ public class NewHomeSteadActivity extends AppCompatActivity
         currentCameraPath = HomeSteadInformationHelper.getAltitudeCameraTempImageFile(generatePictureNameByCameraID(currentCameraImageButtonId,false));
         HomeSteadInformationHelper.createDirectory(HomeSteadInformationHelper.getAltitudeCameraTempImageDir());
 
-        Intent openCameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        Uri uri;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-        {
-            uri = FileProvider.getUriForFile(NewHomeSteadActivity.this, BuildConfig.APPLICATION_ID + ".FileProvider", new File(currentCameraPath));
-            openCameraIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            openCameraIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        if(currentCameraImageButtonId == getResources().getIdentifier("btnHandlerIDCardCamera01","id", NewHomeSteadActivity.this.getPackageName())
+                || currentCameraImageButtonId == getResources().getIdentifier("btnAgentIDCardCamera01","id", NewHomeSteadActivity.this.getPackageName())) {
+            IDCardCamera.create(this).openCamera(IDCardCamera.TYPE_IDCARD_FRONT);
+        } else if(currentCameraImageButtonId == getResources().getIdentifier("btnHandlerIDCardCamera02","id", NewHomeSteadActivity.this.getPackageName())
+                || currentCameraImageButtonId == getResources().getIdentifier("btnAgentIDCardCamera02","id", NewHomeSteadActivity.this.getPackageName())) {
+            IDCardCamera.create(this).openCamera(IDCardCamera.TYPE_IDCARD_BACK);
         }
         else {
-            uri = Uri.fromFile(new File(currentCameraPath));
+            Intent openCameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            Uri uri;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+            {
+                uri = FileProvider.getUriForFile(NewHomeSteadActivity.this, BuildConfig.APPLICATION_ID + ".FileProvider", new File(currentCameraPath));
+                openCameraIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                openCameraIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            }
+            else {
+                uri = Uri.fromFile(new File(currentCameraPath));
+            }
+
+            openCameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+
+            startActivityForResult(openCameraIntent, 200);
         }
-
-        openCameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-
-        startActivityForResult(openCameraIntent, 200);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 
+        String fileName = generatePictureNameByCameraID(currentCameraImageButtonId, true);
         if(requestCode == 200)
         {
-            String fileName = generatePictureNameByCameraID(currentCameraImageButtonId, true);
             if(fileName != null && !"".equals(fileName) && new File(currentCameraPath).exists())
             {
                 cameraBitmapMap.put(fileName, currentCameraPath);
+            }
+        } else if(resultCode == IDCardCamera.RESULT_CODE) {
+            //获取图片路径，显示图片
+            final String path = IDCardCamera.getImagePath(data);
+            if (fileName != null && !"".equals(fileName) && !TextUtils.isEmpty(path)) {
+                if(HomeSteadInformationHelper.savePicture(HomeSteadInformationHelper.getBitmapByFilePath(path), new File(currentCameraPath))) {
+                    cameraBitmapMap.put(fileName, currentCameraPath);
+                }
             }
         }
 
