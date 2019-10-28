@@ -626,10 +626,10 @@ public class ModifyHomeSteadActivity extends AppCompatActivity
 
         if(currentCameraImageButtonId == getResources().getIdentifier("btnHandlerIDCardCamera01","id", ModifyHomeSteadActivity.this.getPackageName())
                 || currentCameraImageButtonId == getResources().getIdentifier("btnAgentIDCardCamera01","id", ModifyHomeSteadActivity.this.getPackageName())) {
-            IDCardCamera.create(this).openCamera(IDCardCamera.TYPE_IDCARD_FRONT);
+            IDCardCamera.create(this).openCamera(IDCardCamera.TYPE_IDCARD_FRONT, currentCameraPath);
         } else if(currentCameraImageButtonId == getResources().getIdentifier("btnHandlerIDCardCamera02","id", ModifyHomeSteadActivity.this.getPackageName())
                 || currentCameraImageButtonId == getResources().getIdentifier("btnAgentIDCardCamera02","id", ModifyHomeSteadActivity.this.getPackageName())) {
-            IDCardCamera.create(this).openCamera(IDCardCamera.TYPE_IDCARD_BACK);
+            IDCardCamera.create(this).openCamera(IDCardCamera.TYPE_IDCARD_BACK, currentCameraPath);
         }
         else {
             Intent openCameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -653,20 +653,12 @@ public class ModifyHomeSteadActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 
-        String fileName = generatePictureNameByCameraID(currentCameraImageButtonId, true);
-        if(requestCode == 200)
+        if(requestCode == 200 || resultCode == IDCardCamera.RESULT_CODE)
         {
+            String fileName = generatePictureNameByCameraID(currentCameraImageButtonId, true);
             if(fileName != null && !"".equals(fileName) && new File(currentCameraPath).exists())
             {
                 cameraBitmapMap.put(fileName, currentCameraPath);
-            }
-        } else if(resultCode == IDCardCamera.RESULT_CODE) {
-            //获取图片路径，显示图片
-            final String path = IDCardCamera.getImagePath(data);
-            if (fileName != null && !"".equals(fileName) && !TextUtils.isEmpty(path)) {
-                if(HomeSteadInformationHelper.savePicture(HomeSteadInformationHelper.getBitmapByFilePath(path), new File(currentCameraPath))) {
-                    cameraBitmapMap.put(fileName, currentCameraPath);
-                }
             }
         }
 
