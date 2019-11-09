@@ -12,6 +12,7 @@ import static org.junit.Assert.*;
 public class ExampleUnitTest {
     @Test
     public void addition_isCorrect() {
-        assertEquals(4, 2 + 2);
+        String Str = new String("1-户主身份信息-01.jpg");
+        System.out.println("返回值 :" + Str.matches("(.*)户主身份信息(.*)01(.*)"));
     }
 }
