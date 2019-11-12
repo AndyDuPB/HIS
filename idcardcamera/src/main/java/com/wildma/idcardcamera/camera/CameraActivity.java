@@ -240,8 +240,8 @@ public class CameraActivity extends Activity implements View.OnClickListener {
         mCropBitmap = Bitmap.createBitmap(bitmap,
                 (int) (leftProportion * (float) bitmap.getWidth()),
                 (int) (topProportion * (float) bitmap.getHeight()),
-                (int) ((rightProportion - leftProportion) * (float) bitmap.getWidth()),
-                (int) ((bottomProportion - topProportion) * (float) bitmap.getHeight()));
+                (int) ((rightProportion - leftProportion) * (float) bitmap.getWidth() + 20),
+                (int) ((bottomProportion - topProportion) * (float) bitmap.getHeight()) + 10);
 
         /*设置成手动裁剪模式*/
         runOnUiThread(new Runnable() {

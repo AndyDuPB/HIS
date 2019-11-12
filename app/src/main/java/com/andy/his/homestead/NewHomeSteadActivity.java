@@ -351,8 +351,12 @@ public class NewHomeSteadActivity extends AppCompatActivity {
             String key = entry.getKey();
             List<Bitmap> bitmapByGroupList = entry.getValue();
             if (bitmapByGroupList.size() == 2) {
-                Bitmap newBmpGroup = newBitmap(bitmapByGroupList.get(0), bitmapByGroupList.get(1));
+                Bitmap bitmap1 = bitmapByGroupList.get(0);
+                Bitmap bitmap2 = bitmapByGroupList.get(1);
+                Bitmap newBmpGroup = newBitmap(bitmap1, bitmap2);
                 save(newBmpGroup, new File(basePath + combinePath + key + "合并.jpg"), Bitmap.CompressFormat.JPEG, true);
+                bitmap1.recycle();
+                bitmap2.recycle();
             } else {
                 for (int i = 0; i < bitmapByGroupList.size(); i = i + 2) {
                     Bitmap bitmap1 = bitmapByGroupList.get(i);
@@ -360,49 +364,59 @@ public class NewHomeSteadActivity extends AppCompatActivity {
                     if (bitmapByGroupList.size() > (i + 1)) {
                         bitmap2 = bitmapByGroupList.get(i + 1);
                         Bitmap newBmpGroup = newBitmap(bitmap1, bitmap2);
-                        save(newBmpGroup, new File(basePath +  combinePath + key + "合并_" + (i / 2 + 1) + ".jpg"), Bitmap.CompressFormat.JPEG, true);
+                        save(newBmpGroup, new File(basePath + combinePath + key + "合并_" + (i / 2 + 1) + ".jpg"), Bitmap.CompressFormat.JPEG, true);
+                        bitmap1.recycle();
+                        bitmap2.recycle();
                     } else {
-                        save(bitmap1, new File(basePath + key + "合并_" + (i / 2 + 1) + ".jpg"), Bitmap.CompressFormat.JPEG, true);
+                        save(bitmap1, new File(basePath + combinePath + key + "合并_" + (i / 2 + 1) + ".jpg"), Bitmap.CompressFormat.JPEG, true);
+                        bitmap1.recycle();
                     }
                 }
             }
         }
     }
 
+    private static Bitmap getBitmap(Bitmap first, Bitmap second) {
+        int width = Math.max(first.getWidth(), second.getWidth());
+        int height = first.getHeight() + second.getHeight() + 100;
+        if (width > 800 || height > 600) {
+            first = resizeBitmap(first, 800, 600);
+            second = resizeBitmap(second, 800, 600);
+            width = 800;
+            height = 800 * 2 + 100;
+        }
+        Bitmap result = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(result);
+        //绘制白色矩形背景
+        Paint paint = new Paint();
+        paint.setAlpha(0x40);
+        paint.setColor(Color.WHITE);
+        canvas.drawRect(0, 0, width, height, paint);
+        canvas.drawBitmap(first, 0, 0, null);
+        canvas.drawBitmap(second, 0, first.getHeight() + 100, null);
+        return result;
+    }
+
     public static Bitmap newBitmap(Bitmap bmp1, Bitmap bmp2) {
         Bitmap retBmp = null;
         if (bmp1 != null && bmp2 != null) {
-            int width = bmp1.getWidth();
+            int width = bmp1.getWidth() + 20;
             int bm1Andbm2Space = 50;
-            if (bmp2.getWidth() != width) {
-                //以第一张图片的宽度为标准，对第二张图片进行缩放。
-                int h2 = bmp2.getHeight() * width / bmp2.getWidth();
-                int totalHeight = bmp1.getHeight() + h2 + bm1Andbm2Space;
-                retBmp = Bitmap.createBitmap(width, bmp1.getHeight() + h2 + bm1Andbm2Space, Bitmap.Config.ARGB_8888);
+            //以第一张图片的宽度为标准，对第二张图片进行缩放。
+            int h2 = bmp2.getHeight() + 10 * width / bmp2.getWidth();
+            int totalHeight = bmp1.getHeight() + 10 + h2 + bm1Andbm2Space;
+            retBmp = Bitmap.createBitmap(width, bmp1.getHeight() + h2 + bm1Andbm2Space, Bitmap.Config.ARGB_8888);
 
-                //绘制白色矩形背景
-                Canvas canvas = new Canvas(retBmp);
-                Paint paint = new Paint();
-                paint.setAlpha(0x40);
-                paint.setColor(Color.WHITE);
-                canvas.drawRect(0, 0, width, totalHeight, paint);
+            //绘制白色矩形背景
+            Canvas canvas = new Canvas(retBmp);
+            Paint paint = new Paint();
+            paint.setAlpha(0x40);
+            paint.setColor(Color.WHITE);
+            canvas.drawRect(0, 0, width, totalHeight, paint);
 
-                Bitmap newSizeBmp2 = resizeBitmap(bmp2, width, h2);
-                canvas.drawBitmap(bmp1, 0, 0, null);
-                canvas.drawBitmap(newSizeBmp2, 0, bmp1.getHeight() + bm1Andbm2Space, null);
-            } else {
-                //两张图片宽度相等，则直接拼接。
-                retBmp = Bitmap.createBitmap(width, bmp1.getHeight() + bmp2.getHeight() + bm1Andbm2Space, Bitmap.Config.ARGB_8888);
-                //绘制白色矩形背景
-                Canvas canvas = new Canvas(retBmp);
-                Paint paint = new Paint();
-                paint.setAlpha(0x40);
-                paint.setColor(Color.WHITE);
-                canvas.drawRect(0, 0, width, bmp1.getHeight() + bmp2.getHeight(), paint);
-
-                canvas.drawBitmap(bmp1, 0, 0, null);
-                canvas.drawBitmap(bmp2, 0, bmp1.getHeight() + bm1Andbm2Space, null);
-            }
+            Bitmap newSizeBmp2 = resizeBitmap(bmp2, width, h2);
+            canvas.drawBitmap(bmp1, 0, 0, null);
+            canvas.drawBitmap(newSizeBmp2, 0, bmp1.getHeight() + bm1Andbm2Space, null);
         }
         return retBmp;
     }
@@ -416,7 +430,7 @@ public class NewHomeSteadActivity extends AppCompatActivity {
         return bmpScale;
     }
 
-    /**
+    /**6
      * 保存图片到文件File。
      *
      * @param src     源图片

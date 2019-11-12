@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">宅基地信息收集系统</string>
+    <string name="app_name" translatable="false">测试-宅基系统</string>
     <string name="module_setting_desc">分组管理</string>
     <string name="homestead_setting_desc">宅基地管理</string>
     <string name="setting_desc">设置</string>
