@@ -81,65 +81,65 @@ public class RegistrationActivity extends AppCompatActivity {
         try
         {
             String licenseNumber = Base64Utils.encodeFile(HomeSteadInformationHelper.getLicenseFilePath());
-//            if(LicenseParser.validationLicenseFile(licenseNumber, this))
-//            {
+            if(LicenseParser.validationLicenseFile(licenseNumber, this))
+            {
                 startActivity(new Intent(RegistrationActivity.this, HomeSteadInformationActivity.class));
                 finish();
-//            }
-//            else {
-//                ExitApplication.getInstance().addActivity(this);
-//
-//                deviceInfo = findViewById(R.id.deviceInfo);
-//                registrationCode = findViewById(R.id.registrationCode);
-//
-//                deviceInfo.setText(AndroidDeviceInfoCollector.getLicenseSerialNumber(this));
-//                //deviceInfo.setEnabled(false);
-//
-//                btnRegistration = findViewById(R.id.btnRegistration);
-//                btnRegistration.setOnClickListener(new View.OnClickListener() {
-//
-//                    @Override
-//                    public void onClick(View v) {
-//
-//                        new Thread(new Runnable() {
-//
-//                            @Override
-//                            public void run() {
-//
-//                                runOnUiThread(new Runnable() {
-//
-//                                    @Override
-//                                    public void run() {
-//
-//                                        boolean allValid = true;
-//                                        if(!registrationCode.testValidity())
-//                                        {
-//                                            allValid = false;
-//                                        }
-//
-//                                        if (allValid)
-//                                        {
-//                                            registration();
-//                                        }
-//                                    }
-//                                });
-//                            }
-//                        }).start();
-//                    }
-//                });
-//
-//                btnReset = findViewById(R.id.btnReset);
-//                btnReset.setOnClickListener(new View.OnClickListener() {
-//
-//                    @Override
-//                    public void onClick(View v) {
-//
-//                        reset();
-//                    }
-//                });
-//
-//                showLicenseUnValidationMessage();
-//            }
+            }
+            else {
+                ExitApplication.getInstance().addActivity(this);
+
+                deviceInfo = findViewById(R.id.deviceInfo);
+                registrationCode = findViewById(R.id.registrationCode);
+
+                deviceInfo.setText(AndroidDeviceInfoCollector.getLicenseSerialNumber(this));
+                //deviceInfo.setEnabled(false);
+
+                btnRegistration = findViewById(R.id.btnRegistration);
+                btnRegistration.setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View v) {
+
+                        new Thread(new Runnable() {
+
+                            @Override
+                            public void run() {
+
+                                runOnUiThread(new Runnable() {
+
+                                    @Override
+                                    public void run() {
+
+                                        boolean allValid = true;
+                                        if(!registrationCode.testValidity())
+                                        {
+                                            allValid = false;
+                                        }
+
+                                        if (allValid)
+                                        {
+                                            registration();
+                                        }
+                                    }
+                                });
+                            }
+                        }).start();
+                    }
+                });
+
+                btnReset = findViewById(R.id.btnReset);
+                btnReset.setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View v) {
+
+                        reset();
+                    }
+                });
+
+                showLicenseUnValidationMessage();
+            }
         }
         catch (Exception e) {
             e.printStackTrace();
