@@ -288,27 +288,6 @@ public class NewHomeSteadActivity extends AppCompatActivity
         }
     }
 
-    public void saveBitmapFile(Map<String, Bitmap> bitmapMap, String filePath) {
-        for (Map.Entry<String, Bitmap> entry : bitmapMap.entrySet()) {
-            Bitmap combinPic = entry.getValue();
-            String fileName = entry.getKey();
-            File temp = new File(filePath);//要保存文件先创建文件夹
-            if (!temp.exists()) {
-                temp.mkdir();
-            }
-            //重复保存时，覆盖原同名图片
-            File file = new File(filePath + fileName);//将要保存图片的路径和图片名称
-            try {
-                BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
-                combinPic.compress(Bitmap.CompressFormat.JPEG, 100, bos);
-                bos.flush();
-                bos.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     private void combinBitMap(final String basePath) {
         final Map<String, List<Bitmap>> combinBitmapMap = new HashMap<>(4);
         final List<Bitmap> idCardGroup1 = new ArrayList<>(2);
