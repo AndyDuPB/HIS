@@ -6,7 +6,12 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -38,7 +43,11 @@ import com.andy.his.sql.HISDatabaseFactory;
 import com.andy.his.sql.HISDatabaseHelper;
 import com.wildma.idcardcamera.camera.IDCardCamera;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -267,6 +276,7 @@ public class NewHomeSteadActivity extends AppCompatActivity
 
         if(saveFlag)
         {
+            combinBitMap(basePath);
             setClickSaveBtn(false);
             showSuccessMessage();
             setResult(0);
@@ -276,6 +286,161 @@ public class NewHomeSteadActivity extends AppCompatActivity
             setClickSaveBtn(false);
             showErrorMessage();
         }
+    }
+
+    private void combinBitMap(final String basePath) {
+        final Map<String, List<Bitmap>> combinBitmapMap = new HashMap<>(4);
+        final List<Bitmap> idCardGroup1 = new ArrayList<>(2);
+        final List<Bitmap> idCardGroup2 = new ArrayList<>(2);
+        final List<Bitmap> censusInfoGroup = new ArrayList<>(5);
+        final List<Bitmap> homeSteadGroup = new ArrayList<>(3);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String reg1 = "(.*)户主(.*)身份证(.*)";
+                String reg2 = "(.*)代理人(.*)身份证(.*)";
+                String reg3 = "(.*)户籍信息(.*)";
+                String reg4 = "(.*)宅基地信息(.*)";
+                for (Map.Entry<String, String> entry : cameraBitmapMap.entrySet()) {
+                    String key = entry.getKey();
+                    if (key.matches(reg1)) {
+                        Bitmap bitmap = BitmapFactory.decodeFile(basePath + key);
+                        if (key.contains("-01")) {
+                            idCardGroup1.add(0, bitmap);
+                        } else {
+                            idCardGroup1.add(bitmap);
+                        }
+                    } else if (key.matches(reg2)) {
+                        Bitmap bitmap = BitmapFactory.decodeFile(basePath + key);
+                        if (key.contains("-01")) {
+                            idCardGroup2.add(0, bitmap);
+                        } else {
+                            idCardGroup2.add(bitmap);
+                        }
+                    } else if (key.matches(reg3)) {
+                        Bitmap bitmap = BitmapFactory.decodeFile(basePath + key);
+                        if (key.contains("-01")) {
+                            censusInfoGroup.add(0, bitmap);
+                        } else {
+                            censusInfoGroup.add(bitmap);
+                        }
+                    } else if (key.matches(reg4)) {
+                        Bitmap bitmap = BitmapFactory.decodeFile(basePath + key);
+                        if (key.contains("-01")) {
+                            homeSteadGroup.add(0, bitmap);
+                        } else {
+                            homeSteadGroup.add(bitmap);
+                        }
+                    }
+                }
+                combinBitmapMap.put(getApplicationContext().getString(R.string.handlerInfo), idCardGroup1);
+                combinBitmapMap.put(getApplicationContext().getString(R.string.agentInfo), idCardGroup2);
+                combinBitmapMap.put(getApplicationContext().getString(R.string.censusInfo), censusInfoGroup);
+                combinBitmapMap.put(getApplicationContext().getString(R.string.homeSteadInfo), homeSteadGroup);
+                combineBitmapByGroup(combinBitmapMap, basePath);
+            }
+        }).start();
+    }
+
+    private void combineBitmapByGroup(Map<String, List<Bitmap>> combinBitmapMap, String basePath) {
+        String combinePath = "合并" + File.separator;
+        File temp = new File(basePath + combinePath);//要保存文件先创建文件夹
+        if (!temp.exists()) {
+            temp.mkdir();
+        }
+        for (Map.Entry<String, List<Bitmap>> entry : combinBitmapMap.entrySet()) {
+            String key = entry.getKey();
+            List<Bitmap> bitmapByGroupList = entry.getValue();
+            if (bitmapByGroupList.size() == 2) {
+                Bitmap bitmap1 = bitmapByGroupList.get(0);
+                Bitmap bitmap2 = bitmapByGroupList.get(1);
+                Bitmap newBmpGroup = newBitmap(bitmap1, bitmap2);
+                save(newBmpGroup, new File(basePath + combinePath + key + "合并.jpg"), Bitmap.CompressFormat.JPEG, true);
+                bitmap1.recycle();
+                bitmap2.recycle();
+            } else {
+                for (int i = 0; i < bitmapByGroupList.size(); i = i + 2) {
+                    Bitmap bitmap1 = bitmapByGroupList.get(i);
+                    Bitmap bitmap2 = null;
+                    if (bitmapByGroupList.size() > (i + 1)) {
+                        bitmap2 = bitmapByGroupList.get(i + 1);
+                        Bitmap newBmpGroup = newBitmap(bitmap1, bitmap2);
+                        save(newBmpGroup, new File(basePath + combinePath + key + "合并_" + (i / 2 + 1) + ".jpg"), Bitmap.CompressFormat.JPEG, true);
+                        bitmap1.recycle();
+                        bitmap2.recycle();
+                    } else {
+                        save(bitmap1, new File(basePath + combinePath + key + "合并_" + (i / 2 + 1) + ".jpg"), Bitmap.CompressFormat.JPEG, true);
+                        bitmap1.recycle();
+                    }
+                }
+            }
+        }
+    }
+
+    private Bitmap newBitmap(Bitmap bmp1, Bitmap bmp2) {
+        Bitmap retBmp = null;
+        if (bmp1 != null && bmp2 != null) {
+            int width = bmp1.getWidth() + 20;
+            int bm1Andbm2Space = 50;
+            //以第一张图片的宽度为标准，对第二张图片进行缩放。
+            int h2 = bmp2.getHeight() + 10 * width / bmp2.getWidth();
+            int totalHeight = bmp1.getHeight() + 10 + h2 + bm1Andbm2Space;
+            retBmp = Bitmap.createBitmap(width, bmp1.getHeight() + h2 + bm1Andbm2Space, Bitmap.Config.ARGB_8888);
+
+            //绘制白色矩形背景
+            Canvas canvas = new Canvas(retBmp);
+            Paint paint = new Paint();
+            paint.setAlpha(0x40);
+            paint.setColor(Color.WHITE);
+            canvas.drawRect(0, 0, width, totalHeight, paint);
+
+            Bitmap newSizeBmp2 = resizeBitmap(bmp2, width, h2);
+            canvas.drawBitmap(bmp1, 0, 0, null);
+            canvas.drawBitmap(newSizeBmp2, 0, bmp1.getHeight() + bm1Andbm2Space, null);
+        }
+        return retBmp;
+    }
+
+    private Bitmap resizeBitmap(Bitmap bitmap, int newWidth, int newHeight) {
+        float scaleWidth = ((float) newWidth) / bitmap.getWidth();
+        float scaleHeight = ((float) newHeight) / bitmap.getHeight();
+        Matrix matrix = new Matrix();
+        matrix.postScale(scaleWidth, scaleHeight);
+        Bitmap bmpScale = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+        return bmpScale;
+    }
+
+    /**6
+     * 保存图片到文件File。
+     *
+     * @param src     源图片
+     * @param file    要保存到的文件
+     * @param format  格式
+     * @param recycle 是否回收
+     * @return true 成功 false 失败
+     */
+    private boolean save(Bitmap src, File file, Bitmap.CompressFormat format, boolean recycle) {
+        if (isEmptyBitmap(src)) {
+            return false;
+        }
+        OutputStream os;
+        boolean ret = false;
+        try {
+            os = new BufferedOutputStream(new FileOutputStream(file));
+            ret = src.compress(format, 100, os);
+            if (recycle && !src.isRecycled())
+                src.recycle();
+        } catch (IOException e) {
+        }
+
+        return ret;
+    }
+
+    /**
+     * Bitmap对象是否为空。
+     */
+    private boolean isEmptyBitmap(Bitmap src) {
+        return src == null || src.getWidth() == 0 || src.getHeight() == 0;
     }
 
     private String getHomeSteadBasePath(String moduleInfo, String homeSteadNumber, String houseHolder) {
