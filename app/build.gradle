@@ -6,8 +6,8 @@ android {
         applicationId "com.andy.his"
         minSdkVersion 17
         targetSdkVersion 28
-        versionCode 1001
-        versionName "10.0.1"
+        versionCode 1101
+        versionName "11.0.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

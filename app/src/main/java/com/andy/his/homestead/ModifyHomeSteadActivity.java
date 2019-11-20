@@ -421,6 +421,7 @@ public class ModifyHomeSteadActivity extends AppCompatActivity
 
         if(saveFlag)
         {
+            HomeSteadInformationHelper.mergeBitMap(this, basePath, cameraBitmapMap);
             setClickSaveBtn(false);
             showSuccessMessage();
             setResult(0);
