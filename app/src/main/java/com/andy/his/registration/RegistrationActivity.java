@@ -81,7 +81,7 @@ public class RegistrationActivity extends AppCompatActivity {
         try
         {
             String licenseNumber = Base64Utils.encodeFile(HomeSteadInformationHelper.getLicenseFilePath());
-            if(true || LicenseParser.validationLicenseFile(licenseNumber, this))
+            if(LicenseParser.validationLicenseFile(licenseNumber, this))
             {
                 startActivity(new Intent(RegistrationActivity.this, HomeSteadInformationActivity.class));
                 finish();

@@ -273,65 +273,48 @@ public class HomeSteadInformationHelper
 
 	public static void mergeBitMap(final AppCompatActivity activity, final String basePath, final Map<String,String> cameraBitmapMap) {
 
-		final Map<String, List<Bitmap>> mergeBitmapMap = new HashMap<>(4);
-		final List<Bitmap> idCardGroup1 = new ArrayList<>(2);
-		final List<Bitmap> idCardGroup2 = new ArrayList<>(2);
-		final List<Bitmap> censusInfoGroup = new ArrayList<>(5);
-		final List<Bitmap> homeSteadGroup = new ArrayList<>(3);
+		String mergePath = "合并" + File.separator;
+		File temp = new File(basePath + mergePath);//要保存文件先创建文件夹
+		if (temp.exists()) {
+			deleteDirectory(temp);
+		}
+		temp.mkdir();
+
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				String reg1 = "(.*)户主(.*)身份证(.*)";
-				String reg2 = "(.*)代理人(.*)身份证(.*)";
-				String reg3 = "(.*)户籍信息(.*)";
-				String reg4 = "(.*)宅基地信息(.*)";
-				for (Map.Entry<String, String> entry : cameraBitmapMap.entrySet()) {
-					String key = entry.getKey();
-					if (key.matches(reg1)) {
-						Bitmap bitmap = BitmapFactory.decodeFile(basePath + key);
-						if (key.contains("-01")) {
-							idCardGroup1.add(0, bitmap);
-						} else {
-							idCardGroup1.add(bitmap);
-						}
-					} else if (key.matches(reg2)) {
-						Bitmap bitmap = BitmapFactory.decodeFile(basePath + key);
-						if (key.contains("-01")) {
-							idCardGroup2.add(0, bitmap);
-						} else {
-							idCardGroup2.add(bitmap);
-						}
-					} else if (key.matches(reg3)) {
-						Bitmap bitmap = BitmapFactory.decodeFile(basePath + key);
-						if (key.contains("-01")) {
-							censusInfoGroup.add(0, bitmap);
-						} else {
-							censusInfoGroup.add(bitmap);
-						}
-					} else if (key.matches(reg4)) {
-						Bitmap bitmap = BitmapFactory.decodeFile(basePath + key);
-						if (key.contains("-01")) {
-							homeSteadGroup.add(0, bitmap);
-						} else {
-							homeSteadGroup.add(bitmap);
-						}
-					}
-				}
-				mergeBitmapMap.put(activity.getApplicationContext().getString(R.string.handlerInfo), idCardGroup1);
-				mergeBitmapMap.put(activity.getApplicationContext().getString(R.string.agentInfo), idCardGroup2);
-				mergeBitmapMap.put(activity.getApplicationContext().getString(R.string.censusInfo), censusInfoGroup);
-				mergeBitmapMap.put(activity.getApplicationContext().getString(R.string.homeSteadInfo), homeSteadGroup);
-				mergeBitmapByGroup(mergeBitmapMap, basePath);
+			separatelyMergeBitMap(activity.getApplicationContext().getString(R.string.handlerInfo), "(.*)户主(.*)身份证(.*)", basePath, cameraBitmapMap);
+			separatelyMergeBitMap(activity.getApplicationContext().getString(R.string.agentInfo), "(.*)代理人(.*)身份证(.*)", basePath, cameraBitmapMap);
+			separatelyMergeBitMap(activity.getApplicationContext().getString(R.string.censusInfo), "(.*)户籍信息(.*)", basePath, cameraBitmapMap);
+			separatelyMergeBitMap(activity.getApplicationContext().getString(R.string.homeSteadInfo), "(.*)宅基地信息(.*)", basePath, cameraBitmapMap);
 			}
 		}).start();
 	}
 
+	private static void separatelyMergeBitMap(String key, String reg, String basePath, Map<String,String> cameraBitmapMap) {
+
+		Map<String, List<Bitmap>> mergeBitmapMap = new HashMap<>();
+		List<Bitmap> bitmapList = new ArrayList<>();
+		BitmapFactory.Options options = new BitmapFactory.Options();
+		options.inJustDecodeBounds = false;
+		options.inPreferredConfig = Bitmap.Config.RGB_565;
+		options.inDither = true;
+		for (Map.Entry<String, String> entry : cameraBitmapMap.entrySet()) {
+			if (entry.getKey().matches(reg)) {
+				Bitmap bitmap = BitmapFactory.decodeFile(basePath + entry.getKey(), options);
+				if (entry.getKey().contains("-01")) {
+					bitmapList.add(0, bitmap);
+				} else {
+					bitmapList.add(bitmap);
+				}
+			}
+		}
+		mergeBitmapMap.put(key, bitmapList);
+		mergeBitmapByGroup(mergeBitmapMap, basePath);
+	}
+
 	public static void mergeBitmapByGroup(Map<String, List<Bitmap>> mergeBitmapMap, String basePath) {
 		String mergePath = "合并" + File.separator;
-		File temp = new File(basePath + mergePath);//要保存文件先创建文件夹
-		if (!temp.exists()) {
-			temp.mkdir();
-		}
 		for (Map.Entry<String, List<Bitmap>> entry : mergeBitmapMap.entrySet()) {
 			String key = entry.getKey();
 			List<Bitmap> bitmapByGroupList = entry.getValue();
@@ -390,8 +373,7 @@ public class HomeSteadInformationHelper
 		float scaleHeight = ((float) newHeight) / bitmap.getHeight();
 		Matrix matrix = new Matrix();
 		matrix.postScale(scaleWidth, scaleHeight);
-		Bitmap bmpScale = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-		return bmpScale;
+		return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
 	}
 
 	/**6
